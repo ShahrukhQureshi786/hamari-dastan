@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#120812" />
+  <title>Hamari Dastan ❤️ Login</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            plum: {
+              900: '#0d0314',
+              800: '#1a0924',
+              700: '#2a1138',
+              600: '#3d1c52'
+            },
+            roseGold: {
+              light: '#ffe5ec',
+              DEFAULT: '#ff8fa3',
+              dark: '#ff4d6d',
+              accent: '#ff758f'
+            },
+            champagne: {
+              light: '#fff3d1',
+              DEFAULT: '#ffd700',
+              dark: '#e6c200'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            cursive: ['Great Vibes', 'cursive']
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="min-h-screen relative flex items-center justify-center selection:bg-roseGold selection:text-plum-900">
+  <canvas id="particle-canvas"></canvas>
+
+  <main class="hd-login-shell relative z-10 w-full max-w-md px-5 py-10">
+    <section class="glass-card rounded-[2rem] p-7 sm:p-9 shadow-2xl">
+      <div class="text-center">
+        <div class="text-5xl mb-3">❤️</div>
+        <h1 class="font-cursive text-5xl text-roseGold glow-text-pink">
+          Hamari Dastan
+        </h1>
+        <p class="text-gray-400 text-sm mt-2">
+          Our Forever Hub
+        </p>
+      </div>
+
+      <div class="mt-8">
+        <div class="hd-login-field-wrap">
+          <label for="hd-login-email" class="block text-xs text-gray-400 mb-2">Email</label>
+          <input
+            id="hd-login-email"
+            type="email"
+            autocomplete="email"
+            required
+            class="hd-login-input w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-roseGold"
+            placeholder="Your email">
+        </div>
+
+        <div class="hd-login-field-wrap mt-4">
+          <label for="hd-login-password" class="block text-xs text-gray-400 mb-2">Password</label>
+          <div class="relative">
+            <input
+              id="hd-login-password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="hd-login-input w-full px-4 py-3 pr-12 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-roseGold"
+              placeholder="Your password">
+            <button
+              id="hd-login-toggle"
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              aria-label="Show password">
+              <i data-lucide="eye" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <p id="hd-login-error" class="hidden text-sm text-roseGold mt-4 text-center"></p>
+
+        <button
+          id="hd-login-submit"
+          type="button"
+          class="w-full mt-6 px-5 py-3.5 rounded-xl bg-gradient-to-r from-roseGold to-champagne text-plum-900 font-bold hover:opacity-90 transition-all shadow-lg shadow-roseGold/20">
+          <span id="hd-login-submit-text">Enter Our Forever Hub ❤️</span>
+        </button>
+
+        <p class="text-[11px] text-gray-500 text-center mt-5">
+          Private access • Only invited accounts can enter
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="login.js"></script>
+</body>
+</html>
