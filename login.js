@@ -21,7 +21,9 @@
     submitButton.disabled = busy;
     submitButton.classList.toggle('opacity-60', busy);
     submitButton.classList.toggle('cursor-not-allowed', busy);
-    submitText.textContent = busy ? 'Checking access…' : 'Enter Our Forever Hub ❤️';
+    submitText.textContent = busy
+      ? 'Checking access…'
+      : 'Enter Our Forever Hub ❤️';
   }
 
   async function startLogin() {
@@ -35,7 +37,12 @@
       return;
     }
 
-    if (!window.supabase || !config.url || !config.publishableKey || config.url.includes('YOUR_')) {
+    if (
+      !window.supabase ||
+      !config.url ||
+      !config.publishableKey ||
+      config.url.includes('YOUR_')
+    ) {
       showError('Supabase configuration complete nahi hai.');
       return;
     }
@@ -48,40 +55,53 @@
         config.publishableKey,
         {
           auth: {
-            persistSession: true,
+            persistSession: false,
             autoRefreshToken: true,
             detectSessionInUrl: true
           }
         }
       );
 
-      const { data: sessionData } = await client.auth.getSession();
+      const { data: sessionData } =
+        await client.auth.getSession();
 
       if (sessionData?.session) {
         window.location.replace('hub.html');
         return;
       }
 
-      const { data, error } = await client.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } =
+        await client.auth.signInWithPassword({
+          email,
+          password
+        });
 
       if (error || !data?.session) {
-        throw new Error('Email ya password ghalat hai, ya account ko access nahi mila.');
+        throw new Error(
+          'Email ya password ghalat hai, ya account ko access nahi mila.'
+        );
       }
 
       window.location.replace('hub.html');
+
     } catch (error) {
       console.error(error);
-      showError('Email ya password ghalat hai, ya account ko access nahi mila.');
+
+      showError(
+        'Email ya password ghalat hai, ya account ko access nahi mila.'
+      );
+
       passwordInput.value = '';
       passwordInput.focus();
+
       setBusy(false);
     }
   }
 
-  submitButton.addEventListener('click', startLogin);
+  submitButton.addEventListener(
+    'click',
+    startLogin
+  );
 
   [emailInput, passwordInput].forEach(input => {
     input.addEventListener('keydown', event => {
@@ -92,25 +112,57 @@
   });
 
   toggleButton.addEventListener('click', () => {
-    const visible = passwordInput.type === 'text';
-    passwordInput.type = visible ? 'password' : 'text';
-    toggleButton.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
-    toggleButton.innerHTML = `<i data-lucide="${visible ? 'eye' : 'eye-off'}" class="w-5 h-5"></i>`;
+    const visible =
+      passwordInput.type === 'text';
+
+    passwordInput.type =
+      visible ? 'password' : 'text';
+
+    toggleButton.setAttribute(
+      'aria-label',
+      visible ? 'Show password' : 'Hide password'
+    );
+
+    toggleButton.innerHTML = `
+      <i
+        data-lucide="${visible ? 'eye' : 'eye-off'}"
+        class="w-5 h-5">
+      </i>
+    `;
+
     lucide.createIcons();
   });
 
   (async () => {
     try {
-      if (!window.supabase || !config.url || !config.publishableKey || config.url.includes('YOUR_')) {
+      if (
+        !window.supabase ||
+        !config.url ||
+        !config.publishableKey ||
+        config.url.includes('YOUR_')
+      ) {
         return;
       }
 
-      const client = window.supabase.createClient(config.url, config.publishableKey);
-      const { data } = await client.auth.getSession();
+      const client = window.supabase.createClient(
+        config.url,
+        config.publishableKey,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        }
+      );
+
+      const { data } =
+        await client.auth.getSession();
 
       if (data?.session) {
         window.location.replace('hub.html');
       }
+
     } catch (error) {
       console.error(error);
     }
