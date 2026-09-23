@@ -174,10 +174,11 @@ function getSupabaseClient() {
     config.publishableKey,
     {
       auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
+  persistSession: true,
+  storage: window.sessionStorage,
+  autoRefreshToken: true,
+  detectSessionInUrl: true
+}
     }
   );
 
