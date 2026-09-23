@@ -1,88 +1,164 @@
 (() => {
   const config = window.HD_SUPABASE_CONFIG || {};
-  const errorBox = document.getElementById('hd-login-error');
-  const emailInput = document.getElementById('hd-login-email');
-  const passwordInput = document.getElementById('hd-login-password');
-  const submitButton = document.getElementById('hd-login-submit');
-  const submitText = document.getElementById('hd-login-submit-text');
-  const toggleButton = document.getElementById('hd-login-toggle');
+
+  const errorBox =
+    document.getElementById('hd-login-error');
+
+  const emailInput =
+    document.getElementById('hd-login-email');
+
+  const passwordInput =
+    document.getElementById('hd-login-password');
+
+  const submitButton =
+    document.getElementById('hd-login-submit');
+
+  const submitText =
+    document.getElementById('hd-login-submit-text');
+
+  const toggleButton =
+    document.getElementById('hd-login-toggle');
+
+
+  /* =========================
+     SHOW ERROR
+  ========================= */
 
   function showError(message) {
+    if (!errorBox) return;
+
     errorBox.textContent = message;
     errorBox.classList.remove('hidden');
   }
 
+
+  /* =========================
+     CLEAR ERROR
+  ========================= */
+
   function clearError() {
+    if (!errorBox) return;
+
     errorBox.textContent = '';
     errorBox.classList.add('hidden');
   }
 
+
+  /* =========================
+     BUTTON LOADING
+  ========================= */
+
   function setBusy(busy) {
+    if (!submitButton || !submitText) return;
+
     submitButton.disabled = busy;
-    submitButton.classList.toggle('opacity-60', busy);
-    submitButton.classList.toggle('cursor-not-allowed', busy);
+
+    submitButton.classList.toggle(
+      'opacity-60',
+      busy
+    );
+
+    submitButton.classList.toggle(
+      'cursor-not-allowed',
+      busy
+    );
+
     submitText.textContent = busy
       ? 'Checking access…'
       : 'Enter Our Forever Hub ❤️';
   }
 
-  async function startLogin() {
-    clearError();
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+  /* =========================
+     SUPABASE CLIENT
+  ========================= */
 
-    if (!email || !password) {
-      showError('Email aur password dono enter karein.');
-      return;
-    }
-
+  function createClient() {
     if (
       !window.supabase ||
       !config.url ||
       !config.publishableKey ||
       config.url.includes('YOUR_')
     ) {
-      showError('Supabase configuration complete nahi hai.');
+      return null;
+    }
+
+    return window.supabase.createClient(
+      config.url,
+      config.publishableKey,
+      {
+        auth: {
+          persistSession: true,
+          storage: window.sessionStorage,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+  }
+
+
+  /* =========================
+     LOGIN
+  ========================= */
+
+  async function startLogin() {
+    clearError();
+
+    const email =
+      emailInput.value.trim();
+
+    const password =
+      passwordInput.value;
+
+
+    if (!email || !password) {
+      showError(
+        'Email aur password dono enter karein.'
+      );
+
       return;
     }
 
-    setBusy(true);
 
-    try {
-      const client = window.supabase.createClient(
-        config.url,
-        config.publishableKey,
-        {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
-          }
-        }
+    const client = createClient();
+
+    if (!client) {
+      showError(
+        'Supabase configuration complete nahi hai.'
       );
 
-      const { data: sessionData } =
-        await client.auth.getSession();
+      return;
+    }
 
-      if (sessionData?.session) {
-        window.location.replace('hub.html');
-        return;
-      }
 
-      const { data, error } =
-        await client.auth.signInWithPassword({
-          email,
-          password
-        });
+    setBusy(true);
 
-      if (error || !data?.session) {
+
+    try {
+      const {
+        data,
+        error
+      } = await client.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+
+      if (
+        error ||
+        !data ||
+        !data.session
+      ) {
         throw new Error(
           'Email ya password ghalat hai, ya account ko access nahi mila.'
         );
       }
 
-      window.location.replace('hub.html');
+
+      window.location.replace(
+        'hub.html'
+      );
 
     } catch (error) {
       console.error(error);
@@ -98,69 +174,115 @@
     }
   }
 
-  submitButton.addEventListener(
-    'click',
-    startLogin
-  );
 
-  [emailInput, passwordInput].forEach(input => {
-    input.addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
-        startLogin();
-      }
-    });
-  });
+  /* =========================
+     LOGIN BUTTON
+  ========================= */
 
-  toggleButton.addEventListener('click', () => {
-    const visible =
-      passwordInput.type === 'text';
-
-    passwordInput.type =
-      visible ? 'password' : 'text';
-
-    toggleButton.setAttribute(
-      'aria-label',
-      visible ? 'Show password' : 'Hide password'
+  if (submitButton) {
+    submitButton.addEventListener(
+      'click',
+      startLogin
     );
+  }
 
-    toggleButton.innerHTML = `
-      <i
-        data-lucide="${visible ? 'eye' : 'eye-off'}"
-        class="w-5 h-5">
-      </i>
-    `;
 
-    lucide.createIcons();
-  });
+  /* =========================
+     ENTER KEY
+  ========================= */
 
-  (async () => {
-    try {
-      if (
-        !window.supabase ||
-        !config.url ||
-        !config.publishableKey ||
-        config.url.includes('YOUR_')
-      ) {
-        return;
-      }
+  [emailInput, passwordInput].forEach(
+    input => {
+      if (!input) return;
 
-      const client = window.supabase.createClient(
-        config.url,
-        config.publishableKey,
-        {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
+      input.addEventListener(
+        'keydown',
+        event => {
+          if (event.key === 'Enter') {
+            startLogin();
           }
         }
       );
+    }
+  );
 
-      const { data } =
-        await client.auth.getSession();
 
-      if (data?.session) {
-        window.location.replace('hub.html');
+  /* =========================
+     SHOW / HIDE PASSWORD
+  ========================= */
+
+  if (toggleButton && passwordInput) {
+    toggleButton.addEventListener(
+      'click',
+      () => {
+        const isVisible =
+          passwordInput.type === 'text';
+
+        passwordInput.type =
+          isVisible
+            ? 'password'
+            : 'text';
+
+
+        toggleButton.setAttribute(
+          'aria-label',
+          isVisible
+            ? 'Show password'
+            : 'Hide password'
+        );
+
+
+        toggleButton.innerHTML = `
+          <i
+            data-lucide="${
+              isVisible
+                ? 'eye'
+                : 'eye-off'
+            }"
+            class="w-5 h-5">
+          </i>
+        `;
+
+
+        if (
+          window.lucide &&
+          typeof lucide.createIcons === 'function'
+        ) {
+          lucide.createIcons();
+        }
+      }
+    );
+  }
+
+
+  /* =========================
+     CHECK EXISTING SESSION
+  ========================= */
+
+  (async () => {
+    try {
+      const client =
+        createClient();
+
+      if (!client) {
+        return;
+      }
+
+
+      const {
+        data,
+        error
+      } = await client.auth.getSession();
+
+
+      if (
+        !error &&
+        data &&
+        data.session
+      ) {
+        window.location.replace(
+          'hub.html'
+        );
       }
 
     } catch (error) {
@@ -168,5 +290,16 @@
     }
   })();
 
-  lucide.createIcons();
+
+  /* =========================
+     INITIAL ICONS
+  ========================= */
+
+  if (
+    window.lucide &&
+    typeof lucide.createIcons === 'function'
+  ) {
+    lucide.createIcons();
+  }
+
 })();
